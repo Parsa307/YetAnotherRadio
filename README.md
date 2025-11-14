@@ -1,5 +1,5 @@
 # Yet Another Radio
-> Heavily inspired from [Advanced Radio Player Applet](https://store.kde.org/p/2136933/)
+> Heavily inspired by [Advanced Radio Player Applet](https://store.kde.org/p/2136933/)
 
 A GNOME Shell extension for listening to internet radio stations directly from your panel.
 
