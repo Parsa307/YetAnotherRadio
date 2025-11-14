@@ -1,0 +1,81 @@
+.metadata-item-box {    
+    spacing: 12px;
+    padding: 8px;
+}
+
+.metadata-thumbnail {
+    min-width: 64px;
+    min-height: 64px;
+}
+
+.metadata-text-box {
+    spacing: 4px;
+}
+
+.metadata-title {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.metadata-artist {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.metadata-quality {
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+preferencespage preferencesgroup button {
+    margin-top: 12px;
+}
+
+preferencespage actionrow button {
+    min-width: 32px;
+    min-height: 32px;
+    margin: 0 2px;
+    padding: 4px;
+}
+
+preferencespage actionrow box button {
+    min-width: 32px;
+    min-height: 32px;
+    margin: 0 2px;
+    padding: 4px;
+}
+
+preferencespage preferencesgroup actionrow {
+    cursor: default;
+}
+
+preferencespage preferencesgroup actionrow:hover {
+    background: transparent;
+}
+
+.popup-menu {
+    max-width: 400px;
+}
+
+.popup-menu-item {
+    max-width: 400px;
+}
+
+.popup-menu-item StLabel {
+    max-width: 350px;
+    ellipsize: end;
+}
+
+.metadata-title {
+    max-width: 280px;
+    ellipsize: end;
+}
+
+.metadata-artist {
+    max-width: 280px;
+    ellipsize: end;
+}
+
+.metadata-item-box {
+    max-width: 380px;
+}

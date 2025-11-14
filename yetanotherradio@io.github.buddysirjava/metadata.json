@@ -1,0 +1,10 @@
+{
+  "name": "Yet Another Radio",
+  "description": "Listen to internet radio easily!",
+  "uuid": "yetanotherradio@io.github.buddysirjava",
+  "shell-version": [
+    "49"
+  ],
+  "url": "https://github.com/BuddySirJava/YetAnotherRadio",
+  "gettext-domain": "yetanotherradio@io.github.buddysirjava"
+}
