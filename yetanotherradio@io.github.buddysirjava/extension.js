@@ -12,16 +12,16 @@ import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils
 
 import {ensureStorageFile, loadStations, saveStations, stationDisplayName, STORAGE_PATH} from './radioUtils.js';
 
-const METADATA_UPDATE_INTERVAL_SECONDS = 2;
 const METADATA_ICON_SIZE = 64;
 
 const Indicator = GObject.registerClass(
 class Indicator extends PanelMenu.Button {
-    _init(stations, openPrefs, extensionPath) {
+    _init(stations, openPrefs, extensionPath, settings) {
         super._init(0.0, _('Yet Another Radio'));
 
         this._stations = stations ?? [];
         this._openPrefs = openPrefs;
+        this._settings = settings;
         this._player = null;
         this._nowPlaying = null;
         this._playbackState = 'stopped';
@@ -131,7 +131,8 @@ class Indicator extends PanelMenu.Button {
     }
 
     _updateMetadataDisplay() {
-        if (!this._metadataItem.visible || !this._player)
+        const showMetadata = this._settings?.get_boolean('show-metadata') ?? true;
+        if (!showMetadata || !this._metadataItem.visible || !this._player)
             return;
 
         this._queryPlayerTags();
@@ -356,9 +357,10 @@ class Indicator extends PanelMenu.Button {
 
     _startMetadataUpdate() {
         this._stopMetadataUpdate();
+        const interval = this._settings?.get_int('metadata-update-interval') ?? 2;
         this._metadataTimer = GLib.timeout_add_seconds(
             GLib.PRIORITY_DEFAULT,
-            METADATA_UPDATE_INTERVAL_SECONDS,
+            interval,
             () => {
                 this._updateMetadataDisplay();
                 return true;
@@ -395,8 +397,11 @@ class Indicator extends PanelMenu.Button {
             this._playbackState = 'playing';
             this._updatePlaybackControl();
             this._playbackControlItem.visible = true;
-            this._metadataItem.visible = true;
-            this._startMetadataUpdate();
+            const showMetadata = this._settings?.get_boolean('show-metadata') ?? true;
+            this._metadataItem.visible = showMetadata;
+            if (showMetadata) {
+                this._startMetadataUpdate();
+            }
             Main.notify(_('Playing %s').format(stationDisplayName(station)));
         } catch (error) {
             logError(error, 'Failed to start playback');
@@ -479,7 +484,9 @@ export default class YetAnotherRadioExtension extends Extension {
         ensureStorageFile();
         const stations = loadStations();
 
-        this._indicator = new Indicator(stations, () => this._openPreferences(), this.path);
+        this._settings = this.getSettings('org.gnome.shell.extensions.yetanotherradio');
+
+        this._indicator = new Indicator(stations, () => this._openPreferences(), this.path, this._settings);
         Main.panel.addToStatusArea(this.uuid, this._indicator);
 
         this._monitor = this._watchStationsFile();
@@ -508,5 +515,7 @@ export default class YetAnotherRadioExtension extends Extension {
 
         this._indicator?.destroy();
         this._indicator = null;
+
+        this._settings = null;
     }
 }

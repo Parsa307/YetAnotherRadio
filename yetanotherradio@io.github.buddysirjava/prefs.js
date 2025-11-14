@@ -251,12 +251,13 @@ const SavedStationsPage = GObject.registerClass(
 
 const AddStationsPage = GObject.registerClass(
     class AddStationsPage extends Adw.PreferencesPage {
-        _init(stations, refreshCallback) {
+        _init(stations, refreshCallback, settings) {
             super._init({
                 title: _('Add Stations'),
             });
 
-            this._client = new RadioBrowserClient();
+            this._client = new RadioBrowserClient(settings);
+            this._settings = settings;
             this._stations = stations;
             this._refreshCallback = refreshCallback;
             this._searching = false;
@@ -439,8 +440,8 @@ const AddStationsPage = GObject.registerClass(
         _populateResults(stations) {
             this._clearResultRows();
 
-            const SEARCH_RESULT_LIMIT = 25;
-            stations.slice(0, SEARCH_RESULT_LIMIT).forEach(station => {
+            const searchLimit = this._settings?.get_int('search-result-limit') ?? 25;
+            stations.slice(0, searchLimit).forEach(station => {
                 const row = new Adw.ActionRow({
                     title: stationDisplayName(station),
                     subtitle: station.url_resolved || station.url || station.homepage || '',
@@ -716,6 +717,7 @@ export default class YetAnotherRadioPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window.set_default_size(720, 640);
 
+        const settings = this.getSettings('org.gnome.shell.extensions.yetanotherradio');
         const stations = loadStations();
 
         const viewStack = new Adw.ViewStack();
@@ -727,7 +729,7 @@ export default class YetAnotherRadioPreferences extends ExtensionPreferences {
         };
 
         const savedStationsPage = new SavedStationsPage(stations, refreshCallback);
-        const addStationsPage = new AddStationsPage(stations, refreshCallback);
+        const addStationsPage = new AddStationsPage(stations, refreshCallback, settings);
         const importExportPage = new ImportExportPage(stations, refreshCallback);
 
         viewStack.add_titled(savedStationsPage, 'saved', _('Saved Stations'));

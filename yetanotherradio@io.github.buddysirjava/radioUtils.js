@@ -18,9 +18,6 @@ export const STORAGE_PATH = GLib.build_filenamev([
     'stations.json',
 ]);
 
-const SEARCH_RESULT_LIMIT = 25;
-const HTTP_REQUEST_TIMEOUT_SECONDS = 10;
-
 export function ensureStorageFile() {
     try {
         const dir = GLib.path_get_dirname(STORAGE_PATH);
@@ -97,12 +94,14 @@ export function stationDisplayName(station) {
 }
 
 export class RadioBrowserClient {
-    constructor() {
+    constructor(settings = null) {
+        const timeout = settings?.get_int('http-request-timeout') ?? 10;
         this._session = new Soup.Session({
             user_agent: USER_AGENT,
-            timeout: HTTP_REQUEST_TIMEOUT_SECONDS,
+            timeout: timeout,
         });
         this._servers = null;
+        this._settings = settings;
     }
 
     async searchStations(query) {
@@ -116,11 +115,12 @@ export class RadioBrowserClient {
         let lastError = null;
         const maxRetries = 3;
 
+        const searchLimit = this._settings?.get_int('search-result-limit') ?? 25;
         for (const baseUrl of shuffled) {
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
                     const url = `${baseUrl}/json/stations/search?name=${encodeURIComponent(trimmed)}` +
-                        `&limit=${SEARCH_RESULT_LIMIT}&hidebroken=true`;
+                        `&limit=${searchLimit}&hidebroken=true`;
                     return await this._fetchJson(url);
                 } catch (error) {
                     lastError = error;

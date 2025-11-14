@@ -2,7 +2,6 @@
   "name": "Yet Another Radio",
   "description": "Listen to internet radio easily!",
   "uuid": "yetanotherradio@io.github.buddysirjava",
-  "version": 1.0,
   "shell-version": [
     "49"
   ],

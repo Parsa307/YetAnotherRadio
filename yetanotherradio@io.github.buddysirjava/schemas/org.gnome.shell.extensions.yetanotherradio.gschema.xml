@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="yetanotherradio@io.github.buddysirjava">
+  <schema id="org.gnome.shell.extensions.yetanotherradio" path="/org/gnome/shell/extensions/yetanotherradio/">
+    <key name="metadata-update-interval" type="i">
+      <default>2</default>
+      <summary>Metadata update interval</summary>
+      <description>Interval in seconds for updating track metadata while playing</description>
+      <range min="1" max="60"/>
+    </key>
+    
+    <key name="http-request-timeout" type="i">
+      <default>10</default>
+      <summary>HTTP request timeout</summary>
+      <description>Timeout in seconds for HTTP requests to radio browser API</description>
+      <range min="5" max="60"/>
+    </key>
+    
+    <key name="search-result-limit" type="i">
+      <default>25</default>
+      <summary>Search result limit</summary>
+      <description>Maximum number of search results to display</description>
+      <range min="5" max="100"/>
+    </key>
+    
+    <key name="show-metadata" type="b">
+      <default>true</default>
+      <summary>Show metadata</summary>
+      <description>Show track metadata (title, artist, album art) in the menu</description>
+    </key>
+    
+    <key name="auto-play-last-station" type="b">
+      <default>false</default>
+      <summary>Auto-play last station</summary>
+      <description>Automatically play the last played station when the extension is enabled</description>
+    </key>
+  </schema>
+</schemalist>
+
