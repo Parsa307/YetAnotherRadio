@@ -3,6 +3,7 @@
     "description": "Listen to internet radio easily!",
     "uuid": "yetanotherradio@io.github.buddysirjava",
     "shell-version": [
+        "45",
         "46",
         "47",
         "48",
