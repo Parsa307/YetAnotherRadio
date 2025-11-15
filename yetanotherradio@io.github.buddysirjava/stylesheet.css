@@ -53,29 +53,30 @@ preferencespage preferencesgroup actionrow:hover {
     background: transparent;
 }
 
-.popup-menu {
+/* Scope these styles to only the extension's menu */
+.yetanotherradio-menu {
     max-width: 400px;
 }
 
-.popup-menu-item {
+.yetanotherradio-menu .popup-menu-item {
     max-width: 400px;
 }
 
-.popup-menu-item StLabel {
+.yetanotherradio-menu .popup-menu-item StLabel {
     max-width: 350px;
     ellipsize: end;
 }
 
-.metadata-title {
+.yetanotherradio-menu .metadata-title {
     max-width: 280px;
     ellipsize: end;
 }
 
-.metadata-artist {
+.yetanotherradio-menu .metadata-artist {
     max-width: 280px;
     ellipsize: end;
 }
 
-.metadata-item-box {
+.yetanotherradio-menu .metadata-item-box {
     max-width: 380px;
 }

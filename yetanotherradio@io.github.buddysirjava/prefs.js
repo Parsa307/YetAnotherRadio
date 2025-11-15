@@ -8,8 +8,6 @@ import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/
 
 import { loadStations, saveStations, stationDisplayName, RadioBrowserClient } from './radioUtils.js';
 
-Adw.init();
-
 const SavedStationsPage = GObject.registerClass(
     class SavedStationsPage extends Adw.PreferencesPage {
         _init(stations, refreshCallback) {
@@ -715,6 +713,7 @@ const ImportExportPage = GObject.registerClass(
 
 export default class YetAnotherRadioPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
+        Adw.init();
         window.set_default_size(720, 640);
 
         const settings = this.getSettings('org.gnome.shell.extensions.yetanotherradio');
