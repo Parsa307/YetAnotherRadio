@@ -25,7 +25,9 @@ This extension uses [Radio Browser](https://www.radio-browser.info/)'s API to fe
 
 ## Installation
 
-Copy the extension directory to `~/.local/share/gnome-shell/extensions/` and enable it via GNOME Extensions.
+Install it via [Gnome Extensions website](https://extensions.gnome.org/extension/8843/yet-another-radio/),
+
+Or Copy the extension directory to `~/.local/share/gnome-shell/extensions/` and enable it via GNOME Extensions.
 
 ## License
 

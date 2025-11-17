@@ -1,5 +1,5 @@
-import Adw from 'gi://Adw?version=1';
-import Gtk from 'gi://Gtk?version=4.0';
+import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
@@ -356,12 +356,17 @@ const AddStationsPage = GObject.registerClass(
             this._stations = stations;
         }
 
-        _cleanup() {
+        destroy() {
             this._cancelSearchDebounce();
             if (this._idleSourceId) {
                 GLib.source_remove(this._idleSourceId);
                 this._idleSourceId = null;
             }
+            if (this._client) {
+                this._client.destroy();
+                this._client = null;
+            }
+            super.destroy();
         }
 
         _cancelSearchDebounce() {
@@ -713,10 +718,9 @@ const ImportExportPage = GObject.registerClass(
 
 export default class YetAnotherRadioPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
-        Adw.init();
         window.set_default_size(720, 640);
 
-        const settings = this.getSettings('org.gnome.shell.extensions.yetanotherradio');
+        const settings = this.getSettings();
         const stations = loadStations();
 
         const viewStack = new Adw.ViewStack();
@@ -788,6 +792,11 @@ export default class YetAnotherRadioPreferences extends ExtensionPreferences {
         toolbarView.set_content(viewStack);
 
         window.set_content(toolbarView);
+
+        window.connect('close-request', () => {
+            addStationsPage.destroy();
+            return false;
+        });
     }
 }
 

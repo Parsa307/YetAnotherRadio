@@ -318,12 +318,8 @@ const Indicator = GObject.registerClass(
         }
 
         _ensurePlayer() {
-            if (!Indicator._gstInitialized) {
-                try {
+            if (!Gst.is_initialized()) {
                     Gst.init(null);
-                } catch (e) {
-                }
-                Indicator._gstInitialized = true;
             }
 
             if (this._player)
@@ -342,7 +338,17 @@ const Indicator = GObject.registerClass(
                 } else if (message.type === Gst.MessageType.ERROR) {
                     const [error, debug] = message.parse_error();
                     logError(error, debug);
-                    Main.notifyError(_('Playback error'), error.message || _('Could not play the selected station.'));
+                    let errorBody = _('Could not play the selected station.');
+                    if (error) {
+                        if (error.message && typeof error.message === 'string') {
+                            errorBody = String(error.message);
+                        } else if (debug && typeof debug === 'string') {
+                            errorBody = String(debug);
+                        } else if (typeof error === 'string') {
+                            errorBody = String(error);
+                        }
+                    }
+                    Main.notifyError(_('Playback error'), errorBody);
                     this._stopPlayback();
                 } else if (message.type === Gst.MessageType.EOS) {
                     this._stopPlayback();
@@ -411,8 +417,10 @@ const Indicator = GObject.registerClass(
                 Main.notify(_('Playing %s').format(stationDisplayName(station)));
             } catch (error) {
                 logError(error, 'Failed to start playback');
-                const errorMsg = error.message || _('Could not start the selected station.');
-                Main.notifyError(_('Playback error'), errorMsg);
+                const errorBody = (error && typeof error === 'object' && error.message) 
+                    ? String(error.message) 
+                    : _('Could not start the selected station.');
+                Main.notifyError(_('Playback error'), errorBody);
             }
         }
 
@@ -494,16 +502,14 @@ const Indicator = GObject.registerClass(
         }
     });
 
-Indicator._gstInitialized = false;
-
 export default class YetAnotherRadioExtension extends Extension {
     enable() {
         ensureStorageFile();
         const stations = loadStations();
 
-        this._settings = this.getSettings('org.gnome.shell.extensions.yetanotherradio');
+        this._settings = this.getSettings();
 
-        this._indicator = new Indicator(stations, () => this._openPreferences(), this.path, this._settings);
+        this._indicator = new Indicator(stations, () => this.openPreferences(), this.path, this._settings);
         Main.panel.addToStatusArea(this.uuid, this._indicator);
 
         this._monitor = this._watchStationsFile();
@@ -516,14 +522,6 @@ export default class YetAnotherRadioExtension extends Extension {
             this._indicator?.setStations(loadStations());
         });
         return monitor;
-    }
-
-    _openPreferences() {
-        if (Main.extensionManager?.openExtensionPrefs) {
-            Main.extensionManager.openExtensionPrefs(this.uuid, '', 0);
-        } else if (ExtensionUtils?.openPrefs) {
-            ExtensionUtils.openPrefs(this.uuid);
-        }
     }
 
     disable() {
