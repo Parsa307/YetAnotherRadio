@@ -1,16 +1,6 @@
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
-const Gettext = imports.gettext;
-const DOMAIN = 'yetanotherradio@io.github.buddysirjava';
-let _;
-try {
-    const gettext = Gettext.domain(DOMAIN);
-    _ = gettext.gettext.bind(gettext);
-} catch (e) {
-    _ = (str) => str;
-}
-
 export const USER_AGENT = 'yetanotherradio-extension/1.0';
 export const STORAGE_PATH = GLib.build_filenamev([
     GLib.get_user_state_dir(),
@@ -30,7 +20,7 @@ export function ensureStorageFile() {
         }
     } catch (error) {
         console.error('Failed to ensure storage file exists', error);
-        throw new Error(_('Could not create storage directory. Check file permissions.'));
+        throw new Error('Could not create storage directory. Check file permissions.');
     }
 }
 
@@ -81,14 +71,14 @@ export function saveStations(stations) {
     } catch (error) {
         console.error('Failed to save stations', error);
         if (error.code === GLib.IOErrorEnum.PERMISSION_DENIED) {
-            throw new Error(_('Permission denied. Cannot save stations file.'));
+            throw new Error('Permission denied. Cannot save stations file.');
         }
-        throw new Error(_('Failed to save stations: %s').format(error.message || _('Unknown error')));
+        throw new Error(`Failed to save stations: ${error.message || 'Unknown error'}`);
     }
 }
 
 export function stationDisplayName(station) {
-    const base = station?.name?.trim() || station?.url || _('Unnamed station');
+    const base = station?.name?.trim() || station?.url || 'Unnamed station';
     const country = station?.countrycode ? ` (${station.countrycode})` : '';
     return `${base}${country}`;
 }
@@ -102,6 +92,7 @@ export class RadioBrowserClient {
         });
         this._servers = null;
         this._settings = settings;
+        this._timeoutId = null;
     }
 
     async searchStations(query) {
@@ -126,10 +117,16 @@ export class RadioBrowserClient {
                     lastError = error;
                     if (attempt < maxRetries - 1) {
                         const delay = Math.pow(2, attempt) * 100;
-                        await new Promise(resolve => GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+                        if (this._timeoutId) {
+                            GLib.source_remove(this._timeoutId);
+                        }
+                        await new Promise(resolve => {
+                            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+                                this._timeoutId = null;
                             resolve();
                             return false;
-                        }));
+                            });
+                        });
                     } else {
                         console.error(`Failed to query ${baseUrl} after ${maxRetries} attempts`, error);
                     }
@@ -139,11 +136,11 @@ export class RadioBrowserClient {
 
         if (lastError) {
             if (lastError.message && lastError.message.includes('timeout')) {
-                throw new Error(_('Network request timed out. Please check your internet connection.'));
+                throw new Error('Network request timed out. Please check your internet connection.');
             }
-            throw new Error(_('All radio servers failed to respond. Please try again later.'));
+            throw new Error('All radio servers failed to respond. Please try again later.');
         }
-        throw new Error(_('All radio servers failed to respond.'));
+        throw new Error('All radio servers failed to respond.');
     }
 
     async _ensureServers() {
@@ -157,7 +154,7 @@ export class RadioBrowserClient {
             .map(name => `https://${name}`);
 
         if (!hosts.length)
-            throw new Error(_('Radio Browser server list is empty.'));
+            throw new Error('Radio Browser server list is empty.');
 
         this._servers = hosts;
     }
@@ -176,7 +173,7 @@ export class RadioBrowserClient {
                         resolve(data.toArray());
                     } catch (error) {
                         if (error.message && error.message.includes('timeout')) {
-                            reject(new Error(_('Network request timed out. Please check your internet connection.')));
+                            reject(new Error('Network request timed out. Please check your internet connection.'));
                         } else {
                             reject(error);
                         }
@@ -187,18 +184,29 @@ export class RadioBrowserClient {
 
         if (message.status_code < 200 || message.status_code >= 300) {
             if (message.status_code === 404) {
-                throw new Error(_('Resource not found. The server may be unavailable.'));
+                throw new Error('Resource not found. The server may be unavailable.');
             } else if (message.status_code >= 500) {
-                throw new Error(_('Server error. Please try again later.'));
+                throw new Error('Server error. Please try again later.');
             } else {
-                throw new Error(_('Request failed with status %d').format(message.status_code));
+                throw new Error(`Request failed with status ${message.status_code}`);
             }
         }
 
         try {
             return JSON.parse(new TextDecoder().decode(bytes));
         } catch (error) {
-            throw new Error(_('Invalid response from server.'));
+            throw new Error('Invalid response from server.');
+        }
+    }
+
+    destroy() {
+        if (this._timeoutId) {
+            GLib.source_remove(this._timeoutId);
+            this._timeoutId = null;
+        }
+        if (this._session) {
+            this._session.abort();
+            this._session = null;
         }
     }
 }

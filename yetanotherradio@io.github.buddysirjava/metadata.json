@@ -1,6 +1,6 @@
 {
     "name": "Yet Another Radio",
-    "description": "Listen to internet radio easily!",
+    "description": "Discover and listen to your favorite internet radio stations using the community driven radio-browser.info API.",
     "uuid": "yetanotherradio@io.github.buddysirjava",
     "shell-version": [
         "45",
@@ -10,5 +10,6 @@
         "49"
     ],
     "url": "https://github.com/BuddySirJava/YetAnotherRadio",
-    "gettext-domain": "yetanotherradio@io.github.buddysirjava"
+    "gettext-domain": "yetanotherradio@io.github.buddysirjava",
+    "settings-schema": "org.gnome.shell.extensions.yetanotherradio"
 }

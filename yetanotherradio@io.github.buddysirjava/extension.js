@@ -318,12 +318,8 @@ const Indicator = GObject.registerClass(
         }
 
         _ensurePlayer() {
-            if (!Indicator._gstInitialized) {
-                try {
+            if (!Gst.is_initialized()) {
                     Gst.init(null);
-                } catch (e) {
-                }
-                Indicator._gstInitialized = true;
             }
 
             if (this._player)
@@ -506,16 +502,14 @@ const Indicator = GObject.registerClass(
         }
     });
 
-Indicator._gstInitialized = false;
-
 export default class YetAnotherRadioExtension extends Extension {
     enable() {
         ensureStorageFile();
         const stations = loadStations();
 
-        this._settings = this.getSettings('org.gnome.shell.extensions.yetanotherradio');
+        this._settings = this.getSettings();
 
-        this._indicator = new Indicator(stations, () => this._openPreferences(), this.path, this._settings);
+        this._indicator = new Indicator(stations, () => this.openPreferences(), this.path, this._settings);
         Main.panel.addToStatusArea(this.uuid, this._indicator);
 
         this._monitor = this._watchStationsFile();
@@ -528,14 +522,6 @@ export default class YetAnotherRadioExtension extends Extension {
             this._indicator?.setStations(loadStations());
         });
         return monitor;
-    }
-
-    _openPreferences() {
-        if (Main.extensionManager?.openExtensionPrefs) {
-            Main.extensionManager.openExtensionPrefs(this.uuid, '', 0);
-        } else if (ExtensionUtils?.openPrefs) {
-            ExtensionUtils.openPrefs(this.uuid);
-        }
     }
 
     disable() {
