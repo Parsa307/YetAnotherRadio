@@ -342,7 +342,17 @@ const Indicator = GObject.registerClass(
                 } else if (message.type === Gst.MessageType.ERROR) {
                     const [error, debug] = message.parse_error();
                     logError(error, debug);
-                    Main.notifyError(_('Playback error'), error.message || _('Could not play the selected station.'));
+                    let errorBody = _('Could not play the selected station.');
+                    if (error) {
+                        if (error.message && typeof error.message === 'string') {
+                            errorBody = String(error.message);
+                        } else if (debug && typeof debug === 'string') {
+                            errorBody = String(debug);
+                        } else if (typeof error === 'string') {
+                            errorBody = String(error);
+                        }
+                    }
+                    Main.notifyError(_('Playback error'), errorBody);
                     this._stopPlayback();
                 } else if (message.type === Gst.MessageType.EOS) {
                     this._stopPlayback();
@@ -411,8 +421,10 @@ const Indicator = GObject.registerClass(
                 Main.notify(_('Playing %s').format(stationDisplayName(station)));
             } catch (error) {
                 logError(error, 'Failed to start playback');
-                const errorMsg = error.message || _('Could not start the selected station.');
-                Main.notifyError(_('Playback error'), errorMsg);
+                const errorBody = (error && typeof error === 'object' && error.message) 
+                    ? String(error.message) 
+                    : _('Could not start the selected station.');
+                Main.notifyError(_('Playback error'), errorBody);
             }
         }
 
