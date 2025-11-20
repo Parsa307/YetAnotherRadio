@@ -3,7 +3,7 @@
 
 A GNOME Shell extension for listening to internet radio stations directly from your panel.
 
-This extension uses [Radio Browser](https://www.radio-browser.info/)'s API to fetch radio urls and play them using gstreamer (Usually being installed with Distributions).
+This extension uses [Radio Browser](https://www.radio-browser.info/)'s API to fetch radio urls and play them using GStreamer (Usually being installed with Distributions).
 
 ## Screenshots
 
